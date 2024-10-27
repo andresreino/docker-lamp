@@ -7,7 +7,7 @@
     <body>
         <div class="container-fluid">
             <?php
-                echo "<h1>¡Hola, Bienvenido al módulo de DWCS 2024-25!</h1>";
+            echo "<h1>¡Hola, Bienvenido al módulo de DWCS 2024-25!</h1>";
             ?> 
 
             <div class="table">

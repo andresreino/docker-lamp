@@ -27,13 +27,35 @@
         <li>Tu nombre escrito al revés es: xxxxxx</li>
     </ul>
 
-    <form action="">
-        Nombre: <input type="text" name="nombre">
+    <form action="3.FormulariosNombre.php" method="POST" >
+        Nombre: <input type="text" id="nombre" name="Nombre">
         <br><br>
-        Apellidos: <input type="text" name="apellidos">
+        Apellidos: <input type="text" id="apellidos" name="Apellidos">
         <br><br>
-        <input type="submit" name="submit" value="Enviar">
+        <input type="submit" value="Enviar">
     </form>
+    
+    <h3>Tarea 2. Envío de formularios</h3>
+
+    <p>Crea un formulario para solicitar una de las siguientes bebidas:</p>
+        
+    <form action="3.FormulariosBebida.php" method="POST" >
+        <label for="bebida">Selecciona una bebida:</label>
+        <select id="bebida" name="Bebida" required >
+            <option value="Coca Cola">Coca Cola - 1 €</option>
+            <option value="Pepsi Cola">Pepsi Cola - 0,80 €</option>
+            <option value="Fanta Naranja">Fanta Naranja - 0,90 €</option>
+            <option value="Trina Manzana">Trina Manzana - 1,10 €</option>
+        </select>
+        <br><br>
+        <label for="cantidad">Cantidad de bebidas:</label>
+        <input type="number" id="cantidad" name="Cantidad" min="1" required>
+        <br><br>
+        <input type="submit" value="Solicitar">
+    </form>
+    
+    
+   
 
     <?php
 
