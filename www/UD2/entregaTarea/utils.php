@@ -2,7 +2,7 @@
 
 $tareas = [
     ['Identificador' => 001,
-    'Descripcion' => " Compra\r balo<nes ",
+    'Descripcion' => " Comprar balones ",
     'Estado' => "Pendiente"],
     ['Identificador' => 002,
     'Descripcion' => "Lavar coche",
