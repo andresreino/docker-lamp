@@ -73,14 +73,4 @@ function guardarTarea($id, $descripcion, $estado){
     return true;    
 }
 
-//$array = devolverListadoTareas();
-//$campoFiltrado = filtrarCampo($tareas[0]["Descripcion"]);
-//$tareas[0]["Descripcion"] = $campoFiltrado;
-//var_dump($tareas);
-//$booleano = informacionValida($array[0]);
-//$booleano = informacionEsValida($array[0]);
-//guardarTarea(  004, " Coger avena\\", " En proceso ");
-//var_dump($tareas);
-//$hola = "hola";
-
 ?>
