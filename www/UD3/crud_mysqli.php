@@ -55,7 +55,7 @@ if (isset($conexion) && $conexion->connect_errno === 0) {
     echo '<h3>CONSULTAS PREPARADAS</h3>';
     try {
         //Preparar la consulta
-        $conexion->store_result();
+        $conexion->store_result(); // Creo que esto es un error, no se debería usar con consultas INSERT, UPDATE o DELETE, ya que no devuelven resultados
         $stmt = $conexion->prepare("INSERT INTO clientes (nombre, apellido, email) VALUES (?,?,?)");
         $stmt->bind_param("sss", $nombre, $apellido, $email);
 
