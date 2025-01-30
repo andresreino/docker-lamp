@@ -30,6 +30,29 @@ function mostrarUsuarios(){
     }
 }
 
+function guardarUsuario($nombre, $apellidos, $localidad){
+    try {
+        $conexion = conectarDBPDO();
+
+        $sql = "INSERT INTO `usuarios`(`nombre`, `apellidos`, `localidad`) VALUES (:nombre,:apellidos,:localidad)";
+        $stmt = $conexion->prepare($sql);
+
+        $stmt->bindParam(':nombre', $nombre);
+        $stmt->bindParam(':apellidos', $apellidos);
+        $stmt->bindParam(':localidad', $localidad);
+
+        $stmt->execute();
+        $stmt->closeCursor();
+
+        return [true, "Usuario guardado correctamente"];
+        
+    } catch (PDOException $e) {
+        return [false, "Error al guardar usuario: " . $e->getMessage()];
+    } finally {
+        $conexion = null;
+    }
+}
+
 
 
 

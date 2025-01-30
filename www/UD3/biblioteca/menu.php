@@ -3,16 +3,22 @@
     <h3 class="text-center text-white">Menú</h3>
     <ul class="nav flex-column">
         <li class="nav-item">
-            <a class="nav-link text-white btn btn-outline-light mb-2" href="index.php">Inicio</a>
+            <a class="nav-link text-white btn btn-outline-light mb-2" href="/UD3/biblioteca/index.php">Inicio</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-white btn btn-outline-light mb-2" href="usuarios.php">Usuarios</a>
+            <a class="nav-link text-white btn btn-outline-light mb-2" href="/UD3/biblioteca/usuarios/usuarios.php">Usuarios</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-white btn btn-outline-light mb-2" href="libros.php">Libros</a>
+            <a class="nav-link text-white btn btn-outline-light mb-2" href="/UD3/biblioteca/usuarios/nuevoUsuarioForm.php">Registrar usuario</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-white btn btn-outline-light mb-2" href="prestamos.php">Préstamos</a>
+            <a class="nav-link text-white btn btn-outline-light mb-2" href="/UD3/biblioteca/libros/librosForm.php">Libros</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-white btn btn-outline-light mb-2" href="/UD3/biblioteca/libros/nuevoLibroForm.php">Registrar libro</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-white btn btn-outline-light mb-2" href="/UD3/biblioteca/libros/prestamosForm.php">Préstamos</a>
         </li>
     </ul>
 </div>
