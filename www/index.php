@@ -49,8 +49,8 @@
                             <td><a href="https://manuais.pages.iessanclemente.net/plantillas/daw/dwcs-d/ud03/index.html" target="_blank">Unidad 3</a></td>
                             <td>
                                 <br />
-                                <a href="https://manuais.pages.iessanclemente.net/plantillas/daw/dwcs-d/ud02/7.anexos/1.aplicacion_tienda/index.html" target="_blank">Boletín 1. Tienda</a><br />
-                                <a href="https://manuais.pages.iessanclemente.net/plantillas/daw/dwcs-d/ud02/7.anexos/2.aplicacion_donacion/index.html" target="_blank">Boletín 2. Donación</a><br />
+                                <a href="https://manuais.pages.iessanclemente.net/plantillas/daw/dwcs-d/ud03/8.anexos/1.aplicacion_tienda/index.html" target="_blank">Boletín 1. Tienda</a><br />
+                                <a href="https://manuais.pages.iessanclemente.net/plantillas/daw/dwcs-d/ud03/8.anexos/2.aplicacion_donacion/index.html" target="_blank">Boletín 2. Donación</a><br />
                                 <a href="https://manuais.pages.iessanclemente.net/plantillas/daw/dwcs-d/ud03/8.tarea_ud03/index.html">Tarea</a>
                             </td>
                             <td>
@@ -60,6 +60,24 @@
                                 <a href="UD3/entregaTarea_solucion" target="_blank">Solución Tarea</a><br />
                             </td>
                         </tr>
+                        <tr>
+                            <td><a href="https://manuais.pages.iessanclemente.net/plantillas/daw/dwcs-d/ud04/index.html" target="_blank">Unidad 4</a></td>
+                            <td>
+                                <br />
+                                <a href="https://manuais.pages.iessanclemente.net/plantillas/daw/dwcs-d/ud04/7.anexos/1.login_sessiones/index.html" target="_blank">Boletín 1. Login y sesiones</a><br />
+                                <a href="https://manuais.pages.iessanclemente.net/plantillas/daw/dwcs-d/ud04/7.anexos/2.login_bd/index.html" target="_blank">Boletín 2. Login con BD</a><br />
+                                <a href="https://manuais.pages.iessanclemente.net/plantillas/daw/dwcs-d/ud04/7.anexos/3.cookies/index.html" target="_blank">Boletín 3. Cookies</a><br />
+                                <a href="https://manuais.pages.iessanclemente.net/plantillas/daw/dwcs-d/ud04/7.anexos/4.ficheros/index.html" target="_blank">Boletín 4. Ficheros</a><br />
+                                <a href="https://manuais.pages.iessanclemente.net/plantillas/daw/dwcs-d/ud04/8.tarea_ud04/index.html">Tarea</a>
+                            </td>
+                            <td>
+                                <a href="UD4" target="_blank">Ejemplos unidad</a><br />
+                                <a href="UD4/anexos/1.sesiones" target="_blank">Solución boletín 1</a><br />
+                                <a href="UD4/anexos/2.sesiones" target="_blank">Solución boletín 2</a><br />
+                                <a href="UD4/anexos/3.cookies" target="_blank">Solución boletín 3</a><br />
+                                <a href="UD4/anexos/3.cookies" target="_blank">Solución boletín 4</a><br />
+                            </td>
+                        </tr> 
                     </tbody>
                 </table>
             </div>
