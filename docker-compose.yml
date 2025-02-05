@@ -27,6 +27,8 @@ services:
             - default
         extra_hosts:
             - "host.docker.internal:host-gateway"
+        env_file:
+            - .env
     phpmyadmin:
         image: phpmyadmin:5.2.1
         links: 
