@@ -113,6 +113,22 @@ function crearTablaTareas(){
     return crearTabla("tareas", $sql);
 }
 
+// Crea la tabla "tareas"    
+function crearTablaFicheros(){
+    $sql = "CREATE TABLE IF NOT EXISTS `tareas`.`ficheros` (
+        `id` INT NOT NULL AUTO_INCREMENT , 
+        `nombre` VARCHAR(100) NOT NULL , 
+        `file` VARCHAR(250) NOT NULL , 
+        `descripcion` VARCHAR(250) NOT NULL , 
+        `id_tarea` INT NOT NULL , 
+        PRIMARY KEY (`id`),
+        FOREIGN KEY (id_tarea) REFERENCES tareas(id) 
+        ON DELETE CASCADE 
+        ON UPDATE CASCADE)";
+
+    return crearTabla("ficheros", $sql);
+}
+
 // Devuelve la lista de usuarios existentes en la DB (Mysqli)
 function listarUsuariosMysqli(){
     try {

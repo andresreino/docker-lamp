@@ -39,6 +39,12 @@
                 $creacionTablaTareas = crearTablaTareas();
                 
                 mostrarResultado($creacionTablaTareas);
+                
+                echo "</div>";
+                $creacionTablaFicheros = crearTablaFicheros();
+                
+                mostrarResultado($creacionTablaFicheros);
+
                 ?>
                 </div>
             </main>

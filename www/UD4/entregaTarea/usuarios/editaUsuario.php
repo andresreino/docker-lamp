@@ -8,40 +8,31 @@
     if($_SESSION['usuario']['rol'] != 1){
         header("Location: ../index.php?redirigido=true");
     }		
+
+     
+    if (!empty($_POST)){
+        include_once('../utils.php');
+        include_once('../modelo/pdo.php');
+        
+        $id = $_POST["id"];
+        $nombre = $_POST["nombre"];
+        $apellidos = $_POST["apellidos"];
+        $username = $_POST["username"];
+        $rol = $_POST["rol"];
+        // Si usuario no actualiza contrasena sistema le asigna cadena vacía "" por defecto
+        $contrasena = $_POST["contrasena"];
+        
+        $resultado = editarUsuario($id, $nombre, $apellidos, $username, $rol, $contrasena);
+
+        // En esta variable guardamos la url desde la que se nos solicitó ejecutar este código
+        // Con header redirigimos a la página que nos solicitó desde el form usando http_referer
+        $referer = $_SERVER['HTTP_REFERER'];
+
+        // OJO, en este header tenemos que poner & delante de succese (no ?) ya que
+        // $referer ya va a incluir "?" en la url, puesto que devuelve también el id (ej: ?id=3)
+        header('Location: ' . $referer . '&success=' . $resultado[0] . '&message=' . $resultado[1]);
+        exit();
+        
+    }
 ?>
-<?php include_once('../head.php'); ?>
-<body>
-    <?php include_once('../vista/header.php'); ?>
-    <div class="container-fluid">
-        <div class="row">
-            <?php include_once('../vista/menu.php'); ?>
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h2>Gestión de tarea</h2>
-                </div>
-                <div class="container">
-                <?php
-                if (!empty($_POST)){
-                    include_once('../utils.php');
-                    include_once('../modelo/pdo.php');
-                    
-                    $id = $_POST["id"];
-                    $nombre = $_POST["nombre"];
-                    $apellidos = $_POST["apellidos"];
-                    $username = $_POST["username"];
-                    $rol = $_POST["rol"];
-                    // Si usuario no actualiza contrasena sistema le asigna cadena vacía "" por defecto
-                    $contrasena = $_POST["contrasena"];
-                    
-                    $resultado = editarUsuario($id, $nombre, $apellidos, $username, $rol, $contrasena);
-                    
-                    mostrarResultado($resultado);
-                }
-                ?>
-                </div>
-            </main>
-        </div>
-    </div>
-    <?php include_once('../vista/footer.php'); ?>
-</body>
-</html>
+                

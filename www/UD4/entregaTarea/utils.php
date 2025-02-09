@@ -136,7 +136,8 @@ function mostrarListadoTareas($lista){
         echo '<td>';
         // Usamos <a> para incluir los botones y que nos lleven a cada php correspondiente (incluir role="button")
         // Incluimos el id de la tarea en la url al hacer click en el botón
-        echo '<a class="btn btn-info" href="editaTareaForm.php?id=' . $tarea["id"] . '" role="button">Editar</a> '; 
+        echo '<a class="btn btn-info" href="tarea.php?id=' . $tarea["id"] . '" role="button">Mostrar</a> '; 
+        echo '<a class="btn btn-success" href="editaTareaForm.php?id=' . $tarea["id"] . '" role="button">Editar</a> '; 
         echo '<a class="btn btn-danger" href="borraTarea.php?id=' . $tarea["id"] . '" role="button">Borrar</a>';   
         echo '</td>';
         echo '</tr>';        

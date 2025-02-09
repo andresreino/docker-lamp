@@ -4,42 +4,28 @@
 	if(!isset($_SESSION['usuario'])){	
 		header("Location: vista/login.php?redirigido=true");
 	}
+
+    if (!empty($_POST)){
+        include_once('../utils.php');
+        include_once('../modelo/mysqli.php');
+        
+        $id = $_POST["id"];
+        $titulo = $_POST["titulo"];
+        $descripcion = $_POST["descripcion"];
+        $estado = $_POST["estado"];
+        $username = $_POST["username"];
+        
+        $resultado = editarTarea($id, $titulo, $descripcion, $estado, $username);
+
+        // En esta variable de sesión guardamos mensaje que nos devuelve función guardarTarea (está en índice 1 del array que devuelve)
+        $_SESSION["usuario"]["success"] = $resultado[0];
+        $_SESSION["usuario"]["message"] = $resultado[1];
+
+        // En esta variable guardamos la url desde la que se nos solicitó ejecutar este código
+        // Con header redirigimos a la página que nos solicitó desde el form usando http_referer        
+        $referer = $_SERVER['HTTP_REFERER'];
+        header('Location: ' . $referer);
+        exit();    
+    }
 ?>
-<?php include_once('../head.php'); ?>
-<body>
-    <?php include_once('../vista/header.php'); ?>
-    <div class="container-fluid">
-        <div class="row">
-            <?php include_once('../vista/menu.php'); ?>
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h2>Gestión de tarea</h2>
-                </div>
-                <div class="container">
-                    <div class="table">
-                        <table class="table table-striped table-hover">
-                        <?php
-                        if (!empty($_POST)){
-                            include_once('../utils.php');
-                            include_once('../modelo/mysqli.php');
-                            
-                            $id = $_POST["id"];
-                            $titulo = $_POST["titulo"];
-                            $descripcion = $_POST["descripcion"];
-                            $estado = $_POST["estado"];
-                            //$id_usuario = $_POST["id_usuario"];
-                            $username = $_POST["username"];
-                            
-                            $resultado = editarTarea($id, $titulo, $descripcion, $estado, $username);
-                            
-                            mostrarResultado($resultado);
-                        }
-                        ?>
-                        </table>
-                    </div>
-                </div>
-        </div>
-    </div>
-    <?php include_once('../vista/footer.php'); ?>
-</body>
-</html>
+                        

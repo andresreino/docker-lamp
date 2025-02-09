@@ -8,32 +8,17 @@
     if($_SESSION['usuario']['rol'] != 1){
         header("Location: ../index.php?redirigido=true");
     }		
-?>
-<?php include_once('../head.php'); ?>
-<body>
-    <?php include_once('../vista/header.php'); ?>
-    <div class="container-fluid">
-        <div class="row">
-            <?php include_once('../vista/menu.php'); ?>
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h2>Gestión de tarea</h2>
-                </div>
-                <div class="container">
-                    <?php
-                        include_once('../modelo/pdo.php');
-                        include_once('../utils.php');
-                        if (!empty($_GET)){
-                            $id = $_GET['id'];
-                            $resultado = borrarUsuario($id);
-                            
-                            mostrarResultado($resultado);
-                        }                      
-                        ?>  
-                </div>
-            </main>
-        </div>
-    </div>
-    <?php include_once('../vista/footer.php'); ?>
-</body>
-</html>
+
+    include_once('../modelo/pdo.php');
+    include_once('../utils.php');
+    if (!empty($_GET)){
+        $id = $_GET['id'];
+        $resultado = borrarUsuario($id);
+        
+        // En esta variable guardamos la url desde la que se nos solicitó ejecutar este código
+        // Con header redirigimos a la página que nos solicitó desde el form usando http_referer
+        $referer = $_SERVER['HTTP_REFERER'];
+        header('Location: ' . $referer . '?success=' . $resultado[0] . '&message=' . $resultado[1]);
+        exit();
+    }                      
+?>  

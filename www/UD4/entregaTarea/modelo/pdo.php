@@ -186,4 +186,49 @@ function buscarTareasUsuario($id, $estado){
     }
 }
 
+// Busca las tareas de un usuario indicando por parámetro username(PDO)
+function buscarTareasUsuarioNoAdmin($username){
+    try {
+        $conexion = conectarDBPDO('tareas');
+        $sql = "SELECT t.*, u.username 
+        FROM tareas t JOIN usuarios u 
+        ON t.id_usuario = u.id 
+        WHERE u.username ='" . $username . "'";
+            
+        $stmt = $conexion->prepare($sql);
+        $stmt->setFetchMode(PDO::FETCH_ASSOC); 
+        $stmt->execute();
+        // Sólo necesitamos una fila, usamos fetch() no fetchAll()
+        $resultado = $stmt->fetchAll();
+        return [true, $resultado];
+    
+    } catch(PDOException $e) {
+        return [false, "Error buscando las tareas del usuario en la base de datos: " . $e->getMessage()];
+    } finally {
+        $conexion = null;
+    }
+}
+// Guarda los datos de un fichero en la BD (PDO)
+function guardarFicheroBD($nombreFichero, $target_file, $descripcion, $idTarea) {
+    try {
+        $conexion = conectarDBPDO('tareas');
+        //Consulta preparada
+        $sql = "INSERT INTO ficheros (nombre, file, descripcion, id_tarea) VALUES (:nombre, :file, :descripcion, :id_tarea)";
+        $stmt = $conexion->prepare($sql);
+
+        $stmt->bindParam(':nombre', $nombreFichero, PDO::PARAM_STR);
+        $stmt->bindParam(':file', $target_file, PDO::PARAM_STR);
+        $stmt->bindParam(':descripcion', $descripcion, PDO::PARAM_STR);
+        $stmt->bindParam(':id_tarea', $idTarea, PDO::PARAM_INT);
+                
+        $stmt->execute();
+        // Devuelve la ejecución y mensaje si todo es correcto
+        return [true, "Fichero guardado correctamente."];
+    } catch(PDOException $e) {
+        return [false, "Error al guardar el fichero: " . $e->getMessage()];
+    } finally {
+        // Cerrar la conexión
+        $conexion = null;
+    }
+}
 ?>

@@ -19,6 +19,19 @@
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h2>Editar usuario</h2>
                 </div>
+                <div>
+                    <?php
+                    include_once('../utils.php');
+                    if(!empty($_GET["success"])){
+                        $success = $_GET["success"];
+                        $message = $_GET["message"];
+
+                        $resultado = [$success, $message];
+                        // Según $success sea 0 (false) o 1 (true) la función imprime rojo (error) o verde (correcto)
+                        mostrarResultado($resultado);
+                    }
+                    ?>
+                </div>
                 <div class="container">
                     <?php
                     include_once('../modelo/pdo.php');
