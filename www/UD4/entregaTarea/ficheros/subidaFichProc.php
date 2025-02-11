@@ -45,7 +45,7 @@
         }
     }
 
-    //procesarSubidaFicheroServidor($target_dir, $target_file, $fileType);
+    procesarSubidaFicheroServidor($target_dir, $target_file, $fileType);
     guardarFicheroBD($nombreFichero, $target_file, $descripcion, $idTarea);
     
     // Redirigimos a la página desde la que se llamó a esta
