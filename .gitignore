@@ -2,5 +2,9 @@ upload/
 .DS_Store
 */.DS_Store
 .env
+<<<<<<< HEAD
 pruebas.php
 pruebas2.php
+=======
+www/UD4/entregaTarea_solucion/files/
+>>>>>>> profesor/main
