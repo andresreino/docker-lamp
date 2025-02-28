@@ -1,0 +1,2 @@
+Creamos este archivo para que en github nos guarde esta carpeta. 
+Si no hubiera nada, en github no aparecería.
