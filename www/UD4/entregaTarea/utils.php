@@ -67,9 +67,23 @@ function validarInformacion(array $campos) {
 // Muestra el resultado del acceso a la DB
 function mostrarResultado($resultado){
     if($resultado[0]){
-        echo '<div class="alert alert-success" role="alert">' . $resultado[1];
+        // En caso de resultado[1] sea un array, imprime todo su contenido
+        if(is_array($resultado[1])){
+            foreach ($resultado[1] as $result) {
+                echo '<div class="alert alert-success" role="alert">' . $result;   
+            }
+        } else {
+            // En caso de resultado[1] sea un String lo imprime directamente
+            echo '<div class="alert alert-success" role="alert">' . $resultado[1];  
+        }
     } else {
-        echo '<div class="alert alert-warning" role="alert">' . $resultado[1];
+        if(is_array($resultado[1])){
+            foreach ($resultado[1] as $result) {
+                echo '<div class="alert alert-warning" role="alert">' . $result;   
+            }
+        } else {
+            echo '<div class="alert alert-warning" role="alert">' . $resultado[1];   
+        }
     }
 }
 
@@ -143,6 +157,18 @@ function mostrarListadoTareas($lista){
         echo '</tr>';        
     }
     echo '</tbody>';
+}
+
+// Muestra la información guardada en variables de sesión superglobal (success y messages)
+function mostrarMensajeSESSION(){
+    $success = $_SESSION["usuario"]["success"]; // Guarda 0 (false) o 1 (true)
+    $messages = $_SESSION["usuario"]["messages"];
+    $resultado = [$success, $messages];
+    // Según $success sea 0 (false) o 1 (true) la función imprime rojo (error) o verde (correcto)
+    mostrarResultado($resultado);
+    // Destruimos las variables de sesión para que no se vuelvan a mostrar si recargamos la página
+    unset($_SESSION["usuario"]["success"]);
+    unset($_SESSION["usuario"]["messages"]);
 }
 
 ?>

@@ -2,7 +2,7 @@
 	session_start();
     // Si no hay sesión iniciada se redirige a login para que introduzca username y contraseña
 	if(!isset($_SESSION['usuario'])){	
-		header("Location: vista/login.php?redirigido=true");
+		header("Location: ../vista/login.php?redirigido=true");
         exit();
 	}		
 ?>
@@ -16,6 +16,7 @@
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h2>Adjuntar archivo</h2>
                 </div>
+                
                 <div class="container"> 
                 <?php
                     include_once('../utils.php');

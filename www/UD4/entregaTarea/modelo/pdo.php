@@ -146,10 +146,8 @@ function borrarUsuario($id){
         $sql = "DELETE FROM usuarios WHERE id = " . $id;
     
         $stmt = $conexion->prepare($sql);
-        $stmt->setFetchMode(PDO::FETCH_ASSOC); 
         $stmt->execute();
-        
-        $resultado = $stmt->fetch();
+
         return [true, "Usuario eliminado correctamente."];
     
     } catch(PDOException $e) {
@@ -175,7 +173,7 @@ function buscarTareasUsuario($id, $estado){
         $stmt = $conexion->prepare($sql);
         $stmt->setFetchMode(PDO::FETCH_ASSOC); 
         $stmt->execute();
-        // Sólo necesitamos una fila, usamos fetch() no fetchAll()
+        // Como puede haber más de una fila, usamos fetchAll() para recoger todas
         $resultado = $stmt->fetchAll();
         return [true, $resultado];
     
@@ -198,7 +196,7 @@ function buscarTareasUsuarioNoAdmin($username){
         $stmt = $conexion->prepare($sql);
         $stmt->setFetchMode(PDO::FETCH_ASSOC); 
         $stmt->execute();
-        // Sólo necesitamos una fila, usamos fetch() no fetchAll()
+        // Como puede haber más de una fila, usamos fetchAll() para recoger todas
         $resultado = $stmt->fetchAll();
         return [true, $resultado];
     
@@ -208,6 +206,7 @@ function buscarTareasUsuarioNoAdmin($username){
         $conexion = null;
     }
 }
+
 // Guarda los datos de un fichero en la BD (PDO)
 function guardarFicheroBD($nombreFichero, $target_file, $descripcion, $idTarea) {
     try {
@@ -231,4 +230,65 @@ function guardarFicheroBD($nombreFichero, $target_file, $descripcion, $idTarea) 
         $conexion = null;
     }
 }
+
+// Selecciona todos los ficheros que tiene una tarea
+function listarFicherosTarea($idTarea){
+    try {
+        $conexion = conectarDBPDO('tareas');
+        $sql = "SELECT * FROM ficheros WHERE id_tarea =" . $idTarea;
+        $stmt = $conexion->prepare($sql);
+        $stmt->setFetchMode(PDO::FETCH_ASSOC); 
+        $stmt->execute();
+        // Como puede haber más de una fila, usamos fetchAll() para recoger todas
+        $resultado = $stmt->fetchAll();
+        return [true, $resultado];
+
+    } catch (\Throwable $th) {
+        return [false, "Error listando los ficheros de la tarea: " . $e->getMessage()];
+    } finally {
+        // Cerrar la conexión
+        $conexion = null;
+    }
+}
+
+// Selecciona un fichero de la BD
+function buscarFicheroDB($idFichero){
+    try {
+        $conexion = conectarDBPDO('tareas');
+        $sql = "SELECT * FROM ficheros WHERE id =" . $idFichero;
+        $stmt = $conexion->prepare($sql);
+        $stmt->setFetchMode(PDO::FETCH_ASSOC); 
+        $stmt->execute();
+        // Sólo necesitamos una fila, un fichero. Usamos fetch() no fetchAll()
+        $resultado = $stmt->fetch();
+        return [true, $resultado];
+
+    } catch (\Throwable $th) {
+        return [false, "Error buscando el fichero por su id: " . $e->getMessage()];
+    } finally {
+        // Cerrar la conexión
+        $conexion = null;
+    }
+}
+
+
+// Elimina un fichero de la BD por su id
+function borrarFicheroDB($idFichero){
+    try {
+        $conexion = conectarDBPDO('tareas');
+        $sql = "DELETE FROM ficheros WHERE id =" . $idFichero;
+        
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute();
+
+        return [true, "Fichero eliminado correctamente."];
+
+    } catch (\Throwable $th) {
+        return [false, "Error borrando el fichero: " . $e->getMessage()];
+    } finally {
+        // Cerrar la conexión
+        $conexion = null;
+    }
+}
+
 ?>

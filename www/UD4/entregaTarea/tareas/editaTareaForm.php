@@ -2,7 +2,7 @@
 	session_start();
     // Si no hay sesión iniciada se redirige a login para que introduzca username y contraseña
 	if(!isset($_SESSION['usuario'])){	
-		header("Location: vista/login.php?redirigido=true");
+		header("Location: ../vista/login.php?redirigido=true");
 	}
 ?>
 <?php include_once('../head.php'); ?>
@@ -18,15 +18,8 @@
                 <div>
                     <?php
                     include_once('../utils.php');
-                    if(!empty($_SESSION["usuario"]["message"]) && $_SESSION["usuario"]["success"]){
-                        $success = $_SESSION["usuario"]["success"];
-                        $message = $_SESSION["usuario"]["message"];
-                        $resultado = [$success, $message];
-                        // Según $success sea 0 (false) o 1 (true) la función imprime rojo (error) o verde (correcto)
-                        mostrarResultado($resultado);
-                        // Destruimos las variables de sesión para que no se vuelvan a mostrar si recargamos la página
-                        unset($_SESSION["usuario"]["success"]);
-                        unset($_SESSION["usuario"]["message"]);
+                    if(!empty($_SESSION["usuario"]["messages"])){
+                        mostrarMensajeSESSION();
                     }
                     ?>
                 </div>

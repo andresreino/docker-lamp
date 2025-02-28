@@ -2,7 +2,7 @@
 	session_start();
     // Si no hay sesión iniciada se redirige a login para que introduzca username y contraseña
 	if(!isset($_SESSION['usuario'])){	
-		header("Location: vista/login.php?redirigido=true");
+		header("Location: ../vista/login.php?redirigido=true");
 	}
     // Sólo admin puede acceder a esta página. Si usuario intenta acceder escribiendo la url lo redirigimos a index
     if($_SESSION['usuario']['rol'] != 1){
