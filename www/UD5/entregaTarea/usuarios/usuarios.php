@@ -22,7 +22,7 @@
                 <div>
                     <?php
                     include_once('../utils.php');
-                    if(!empty($_GET["success"])){
+                    if(!empty($_GET["success"]) || !empty($_GET["message"])){
                         $success = $_GET["success"];
                         $message = $_GET["message"];
 
@@ -58,16 +58,17 @@
                                     
                                     foreach ($listaUsuarios[1] as $usuario) {                                       
                                         echo '<tr>';
-                                        echo '<td>' . $usuario["id"] . '</td>';   
-                                        echo '<td>' . $usuario["nombre"] . '</td>';   
-                                        echo '<td>' . $usuario["apellidos"] . '</td>';   
-                                        echo '<td>' . ($usuario["rol"] === 0 ? "Usuario" : "Administrador") . '</td>';   
-                                        echo '<td>' . $usuario["username"] . '</td>';
+                                        echo '<td>' . $usuario->getId() . '</td>';   
+                                        echo '<td>' . $usuario->getNombre() . '</td>';   
+                                        echo '<td>' . $usuario->getApellidos() . '</td>';
+                                        // OJO, no podemos poner === porque getRol() devuelve un string, no un int   
+                                        echo '<td>' . ($usuario->getRol() == 0 ? "Usuario" : "Administrador") . '</td>';   
+                                        echo '<td>' . $usuario->getUsername() . '</td>';
                                         echo '<td>';
                                         // Usamos <a> para incluir los botones y que nos lleven a cada php correspondiente (incluir role="button")
                                         // Incluimos el id del usuario en la url al hacer click en el botón
-                                        echo '<a class="btn btn-info" href="editaUsuarioForm.php?id=' . $usuario["id"] . '" role="button">Editar</a> '; 
-                                        echo '<a class="btn btn-danger" href="borraUsuario.php?id=' . $usuario["id"] . '" role="button">Borrar</a>';   
+                                        echo '<a class="btn btn-info" href="editaUsuarioForm.php?id=' . $usuario->getId() . '" role="button">Editar</a> '; 
+                                        echo '<a class="btn btn-danger" href="borraUsuario.php?id=' . $usuario->getId() . '" role="button">Borrar</a>';   
                                         echo '</td>';
                                         echo '</tr>';        
                                     }

@@ -16,9 +16,12 @@
         $resultado = borrarUsuario($id);
         
         // En esta variable guardamos la url desde la que se nos solicitó ejecutar este código
+        // La limpiamos primero usando esta función por si trae mensajes (?success= u otros)
+        $refererLimpio = limpiarReferer($_SERVER['HTTP_REFERER']);
+        
         // Con header redirigimos a la página que nos solicitó desde el form usando http_referer
-        $referer = $_SERVER['HTTP_REFERER'];
-        header('Location: ' . $referer . '?success=' . $resultado[0] . '&message=' . $resultado[1]);
+        header('Location: ' . $refererLimpio . '?success=' . $resultado[0] . '&message=' . $resultado[1]);
         exit();
-    }                      
+    }     
+    
 ?>  

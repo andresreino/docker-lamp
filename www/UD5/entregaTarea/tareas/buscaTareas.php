@@ -36,8 +36,8 @@
                                 // que el option devuelva en el "value" el id del usuario, no el username
                                 if ($resultado[0] && count($resultado[1]) > 0) {
                                     foreach ($resultado[1] as $usuario) {
-                                        $id_usuario = $usuario["id"];
-                                        $data = $usuario["username"];
+                                        $id_usuario = $usuario->getId();
+                                        $data = $usuario->getUsername();
                                         echo "<option value=$id_usuario>$data</option>";
                                     }   
                                 } else {

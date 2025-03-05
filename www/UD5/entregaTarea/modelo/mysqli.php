@@ -143,7 +143,14 @@ function listarUsuariosMysqli(){
                 $resultado = [];
                 // En array introducimos cada fila con datos generada en un array con fetch_assoc() [En listarTareas hacemos con fetch_all(MYSQLI_ASSOC)]
                 while($fila = $consulta->fetch_assoc()){
-                    $resultado[] = $fila;
+                    $usuario = new Usuario('', '', '', '', '');
+                    $usuario->setId($fila['id']);
+                    $usuario->setUsername($fila['username']);
+                    $usuario->setNombre($fila['nombre']);
+                    $usuario->setApellidos($fila['apellidos']);
+                    $usuario->setRol($fila['rol']);
+                    $usuario->setContrasena($fila['contrasena']);
+                    $resultado[] = $usuario;
                 }
                 return [true, $resultado];
             }
@@ -155,43 +162,33 @@ function listarUsuariosMysqli(){
     }  
 }
 
-// Guarda la tarea en la DB con los parámetros que se introducen (Mysqli)
-function guardarTarea($titulo, $descripcion, $estado, $username){
-    // En esta variable guardamos array con booleano true/false[0] + mensaje[1]
-    $tareaValida = tareaEsValida($titulo, $descripcion, $estado, $username);
-    
-    if($tareaValida[0]){
-        try {
-            $conexion = conectarDBmysqli('tareas');
-            if ($conexion->connect_error) {
-                return [false, "Error al conectar con la base de datos: " . $conexion->error];
-            } else {
-                // OJO: El valor de username tiene que ir entre comillas (es String)  
-                $sql = "SELECT id FROM usuarios WHERE username = '" . $username . "'";
+// Guarda la tarea en la DB con el objeto Tarea introducido por parámetro (Mysqli)
+function guardarTarea($tarea){   
+    try {
+        $conexion = conectarDBmysqli('tareas');
+        if ($conexion->connect_error) {
+            return [false, "Error al conectar con la base de datos: " . $conexion->error];
+        } else {
+            
+            $stmt = $conexion->prepare("INSERT INTO tareas (titulo, descripcion, estado, id_usuario) VALUES (?, ?, ?, ?)");
+            $titulo = $tarea->getTitulo();
+            $descripcion = $tarea->getDescripcion();
+            $estado = $tarea->getEstado();
+            $idUsuario = $tarea->getIdUsuario();
+            
+            $stmt->bind_param("sssi", $titulo, $descripcion, $estado, $idUsuario);
+            $stmt->execute();
 
-                $idUsuario = $conexion->query($sql);
-                // Guardamos array asociativo: [id]=>"id de usuario"
-                $idUsuario = $idUsuario->fetch_assoc();
-                
-                $stmt = $conexion->prepare("INSERT INTO tareas (titulo, descripcion, estado, id_usuario) VALUES (?, ?, ?, ?)");
-              
-                $stmt->bind_param("sssi", $titulo, $descripcion, $estado, $idUsuario["id"]);
-                $stmt->execute();
-
-                return [true, "Tarea guardada correctamente."];
-            }
-        } catch (mysqli_sql_exception $e) {
-            return [false, "Error al guardar la tarea: " . $e->getMessage()];
-        } finally {
-            cerrarConexionDBmysqli($conexion);
-        }  
-    }else{
-        // Si la tarea no valida todos los campo devuelve array con false[0] e info del error[1]
-        return $tareaValida;
-    }
+            return [true, "Tarea guardada correctamente."];
+        }
+    } catch (mysqli_sql_exception $e) {
+        return [false, "Error al guardar la tarea: " . $e->getMessage()];
+    } finally {
+        cerrarConexionDBmysqli($conexion);
+    }      
 }
 
-// Devuelve la lista de tareas guardadas (Mysqli)
+// Devuelve la lista de objetos Tarea guardados en la BD (Mysqli)
 function listarTareas(){
     try {
         // Inicializamos variable $conexion por si no existe la DB y evitar warning al cerrar conexión al no estar definida
@@ -207,8 +204,20 @@ function listarTareas(){
             ON t.id_usuario = u.id";          
             
             $consulta = $conexion->query($sql);
-            $resultado = $consulta->fetch_all(MYSQLI_ASSOC);
-            // Devuelve un array de dos dimensiones con las tareas. Si no hay: array(0)
+            $resultado = [];
+
+            // En array introducimos cada fila con datos generada en un array con fetch_assoc() [En listarTareas hacemos con fetch_all(MYSQLI_ASSOC)]
+            while($fila = $consulta->fetch_assoc()){
+                $tarea = new Tarea('', '', '', 0);
+                $tarea->setId($fila['id']);
+                $tarea->setTitulo($fila['titulo']);
+                $tarea->setDescripcion($fila['descripcion']);
+                $tarea->setEstado($fila['estado']);
+                $tarea->setIdUsuario($fila['id_usuario']);
+                $resultado[] = $tarea;
+            }
+
+            // Devuelve un array de dos dimensiones con los objetos Tarea en $resultado. Si no hay: array(0)
             return [true, $resultado];
         }
     } catch (mysqli_sql_exception $e) {
@@ -222,39 +231,34 @@ function listarTareas(){
     } 
 }
 
-// Edita los datos de una tarea (Mysqli)
-function editarTarea($idTarea, $titulo, $descripcion, $estado, $username){
-    
-    $tareaValida = tareaEsValida($titulo, $descripcion, $estado, $username);
-    
-    if($tareaValida[0]){
-        try {
-            $conexion = conectarDBmysqli('tareas');
-            if ($conexion->connect_error) {
-                return [false, "Error al conectar con la base de datos: " . $conexion->error];
-            } else {
-                 
-                $sqlId = "SELECT id FROM usuarios WHERE username='" . $username . "'";
+// Edita una tarea introduciendo objeto Tarea por parámetro (Mysqli)
+function editarTarea($tarea){
+    try {
+        $conexion = conectarDBmysqli('tareas');
+        if ($conexion->connect_error) {
+            return [false, "Error al conectar con la base de datos: " . $conexion->error];
+        } else {
+            
+            $sql = "UPDATE tareas SET titulo = ?, descripcion = ?, estado = ?, id_usuario = ? WHERE id = ?";
+            $stmt = $conexion->prepare($sql);
+            
+            $idTarea = $tarea->getId();
+            $titulo = $tarea->getTitulo();
+            $descripcion = $tarea->getDescripcion();
+            $estado = $tarea->getEstado();
+            $idUsuario = $tarea->getIdUsuario();
 
-                $stmt = $conexion->query($sqlId);
-                $resultado = $stmt->fetch_assoc();
-                // Guardamos en esta variable valor de id por complejidad de comillas en consulta posterior
-                $idUsuario = $resultado["id"];
-
-                $sql = "UPDATE `tareas` SET `titulo`='$titulo',`descripcion`='$descripcion',`estado`='$estado',`id_usuario`='$idUsuario' WHERE id=" . $idTarea;
-
-                if($conexion->query($sql)){
-                    return [true, "Tarea actualizada correctamente."];
-                }
+            //$sql = "UPDATE `tareas` SET `titulo`='$titulo',`descripcion`='$descripcion',`estado`='$estado',`id_usuario`='$idUsuario' WHERE id=" . $idTarea;
+            $stmt->bind_param("sssii", $titulo, $descripcion, $estado, $idUsuario, $idTarea);
+            $stmt->execute();
+            if($stmt){
+                return [true, "Tarea actualizada correctamente."];   
             }
-        } catch (mysqli_sql_exception $e) {
-            return [false, "Error al actualizar la tarea: " . $e->getMessage()];
-        } finally {
-            cerrarConexionDBmysqli($conexion);
-        }  
-    }else{
-        // Si la tarea no valida todos los campo devuelve array con false[0] e info del error[1]
-        return $tareaValida;
+        }
+    } catch (mysqli_sql_exception $e) {
+        return [false, "Error al actualizar la tarea: " . $e->getMessage()];
+    } finally {
+        cerrarConexionDBmysqli($conexion);
     }     
 }
 
@@ -271,12 +275,18 @@ function buscarTarea($id){
             ON t.id_usuario = u.id
             WHERE t.id =" . $id;
 
-            
             $stmt = $conexion->query($sql);
-            $resultado = $stmt->fetch_assoc();
+            $fila = $stmt->fetch_assoc();
+
+            $tarea = new Tarea('', '', '', 0);
+            $tarea->setId($fila['id']);
+            $tarea->setTitulo($fila['titulo']);
+            $tarea->setDescripcion($fila['descripcion']);
+            $tarea->setEstado($fila['estado']);
+            $tarea->setIdUsuario($fila['id_usuario']);
             
             if($stmt){
-                return [true, $resultado];
+                return [true, $tarea];
             }
         }
     } catch (mysqli_sql_exception $e) {

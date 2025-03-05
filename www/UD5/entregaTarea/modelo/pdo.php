@@ -1,5 +1,9 @@
 <?php
 include_once('../utils.php');
+include_once('../usuarios/Usuario.php');
+include_once('../ficheros/Fichero.php');
+include_once('../tareas/Tarea.php');
+include_once('../excepciones/DatabaseException.php');
 
 // Conecta con la base de datos cuyo nombre se introduce por parámetro mediante PDO
 function conectarDBPDO($nombreDB){
@@ -9,17 +13,29 @@ function conectarDBPDO($nombreDB){
     $password = $_ENV['DATABASE_PASSWORD'];
     $dbname = $nombreDB;
 
-    $conexion = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-    // Forzar excepciones
-    $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    return $conexion;
+    try {
+        $conexion = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+        // Forzar excepciones
+        $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        return $conexion;
+    } catch (PDOException $e) {
+        // Si se produce error de conexión con BD salta este tipo de excepción
+        // OJO, sólo las recogemos en métodos que tengan que ver con ficheros (pto 4 tarea UD5) y para que en demás métodos 
+        // se recoja si falla conexión tenemos que cambiar excepción del catch de PDOException a Exception, ya que hereda de esta última
+        throw new DatabaseException("Fallo al conectar con la base de datos.", "conectarDBPDO");
+    }
 }
 
 // Guarda el usuario en la DB con los parámetros que se introducen (PDO)
-function guardarUsuario($nombre, $apellidos, $username, $rol, $contrasena){
+function guardarUsuario($usuario){
+    $username = $usuario->getUsername();
+    $nombre = $usuario->getNombre();
+    $apellidos = $usuario->getApellidos();
+    $rol = ($usuario->getRol() === "usuario") ? 0 : 1;    
+    $contrasena = $usuario->getContrasena();
+    
     // En esta variable guardamos array con booleano true/false[0] + mensaje[1]
     $usuarioValido = usuarioEsValido($nombre, $apellidos, $username, $contrasena);
-    $rol = ($rol === "usuario") ? 0 : 1;
     
     if($usuarioValido[0]){
         try {
@@ -27,7 +43,7 @@ function guardarUsuario($nombre, $apellidos, $username, $rol, $contrasena){
             //Consulta preparada
             $sql = "INSERT INTO usuarios (username, nombre, apellidos, rol, contrasena) VALUES (:username, :nombre, :apellidos, :rol, :contrasena)";
             $stmt = $conexion->prepare($sql);
-
+                 
             $stmt->bindParam(':username', $username, PDO::PARAM_STR);
             $stmt->bindParam(':nombre', $nombre, PDO::PARAM_STR);
             $stmt->bindParam(':apellidos', $apellidos, PDO::PARAM_STR);
@@ -35,10 +51,11 @@ function guardarUsuario($nombre, $apellidos, $username, $rol, $contrasena){
             // Creamos una contraseña encriptada con un HASH para guardarla en la BD
             $hasheado = password_hash($contrasena, PASSWORD_DEFAULT);
             $stmt->bindParam(':contrasena', $hasheado, PDO::PARAM_STR);
+            
             $stmt->execute();
             // Devuelve la ejecución y mensaje si todo es correcto
             return [true, "Usuario guardado correctamente."];
-        } catch(PDOException $e) {
+        } catch(Exception $e) {
             return [false, "Error al guardar el usuario: " . $e->getMessage()];
         } finally {
             // Cerrar la conexión
@@ -50,11 +67,19 @@ function guardarUsuario($nombre, $apellidos, $username, $rol, $contrasena){
     }
 }
 
-// Edita los datos de un usuario
-function editarUsuario($id, $nombre, $apellidos, $username, $rol, $contrasena){
+// Edita los datos de un usuario recibiendo un objeto Usuario por parámetro
+function editarUsuario($usuario){
+    $id = $usuario->getId();
+    $username = $usuario->getUsername();
+    $nombre = $usuario->getNombre();
+    $apellidos = $usuario->getApellidos();
+    $rol = ($usuario->getRol() === "usuario") ? 0 : 1;    
+    $contrasena = $usuario->getContrasena();
+
     $datosAntiguosUsuario = buscarUsuario($id);
-    $contrasenaAntigua = $datosAntiguosUsuario[1]["contrasena"];
+    $contrasenaAntigua = $datosAntiguosUsuario[1]->getContrasena();
     $hasheado = "";
+
     // Comprobamos si se ha modificado o no la antigua contraseña
     if($contrasena == "") {
         // Si no se modifica le damos este valor temporal para que pase la validación
@@ -69,8 +94,6 @@ function editarUsuario($id, $nombre, $apellidos, $username, $rol, $contrasena){
     }
     //$contrasena = ($contrasena == "") ? $contrasenaAntigua : $contrasena; 
     
-    $rol = ($rol === "usuario") ? 0 : 1;
-    
     if($usuarioValido[0]){
         
         try {
@@ -81,7 +104,7 @@ function editarUsuario($id, $nombre, $apellidos, $username, $rol, $contrasena){
             $stmt->execute();
             // Devuelve la ejecución y mensaje si todo es correcto
             return [true, "Usuario actualizado correctamente."];
-        } catch(PDOException $e) {
+        } catch(Exception $e) {
             return [false, "Error al actualizar el usuario: " . $e->getMessage()];
         } finally {
             $conexion = null;
@@ -92,21 +115,35 @@ function editarUsuario($id, $nombre, $apellidos, $username, $rol, $contrasena){
     }        
 }
 
-// Devuelve la lista de usuarios existentes en la DB (PDO)
+// Devuelve la lista de usuarios existentes (objetos Usuario) en la DB (PDO)
 function listarUsuariosPDO(){
     try {
         $conexion = conectarDBPDO('tareas');
         $sql = "SELECT * FROM usuarios";
 
         $stmt = $conexion->prepare($sql);
+
         // FETCH_ASSOC Devuelve array indexado (nombre+campo tabla):[id] => 1 [nombre] => Juan 
         $stmt->setFetchMode(PDO::FETCH_ASSOC); 
         $stmt->execute();
 
-        $resultado = $stmt->fetchAll();
+        $resultado = [];
+        
+        while($fila = $stmt->fetch()){
+            $usuario = new Usuario('', '', '', '', '');
+            $usuario->setId($fila['id']);
+            $usuario->setUsername($fila['username']);
+            $usuario->setNombre($fila['nombre']);
+            $usuario->setApellidos($fila['apellidos']);
+            $usuario->setContrasena($fila['contrasena']);
+            $usuario->setRol($fila['rol']);
+
+            $resultado[] = $usuario;
+        }
+        
         return [true, $resultado];
 
-    } catch(PDOException $e) {
+    } catch(Exception $e) {
         // Accedemos a la propiedad code del objeto PDOException para saber su código
         $error = $e->getCode();
         if($error == 1049){// Código 1049: base de datos no encontrada
@@ -130,9 +167,47 @@ function buscarUsuario($id){
         $stmt->execute();
         // Sólo necesitamos una fila, usamos fetch() no fetchAll()
         $resultado = $stmt->fetch();
-        return [true, $resultado];
+        // Creamos usuario indicando al constructor que inicialice con cadena vacía cada atributo
+        $usuario = new Usuario('', '', '', '', '');
+        $usuario->setId($resultado['id']);
+        $usuario->setUsername($resultado['username']);
+        $usuario->setNombre($resultado['nombre']);
+        $usuario->setApellidos($resultado['apellidos']);
+        $usuario->setContrasena($resultado['contrasena']);
+        $usuario->setRol($resultado['rol']);
+        
+        return [true, $usuario];
     
-    } catch(PDOException $e) {
+    } catch(Exception $e) {
+        return [false, "Error buscando el usuario en la base de datos: " . $e->getMessage()];
+    } finally {
+        $conexion = null;
+    }
+}
+
+// Busca el usuario con username introducido por parámetro (PDO)
+function buscarUsuarioPorUsername($username){
+    try {
+        $conexion = conectarDBPDO('tareas');
+        $sql = "SELECT * FROM usuarios WHERE username ='" . $username . "'";
+    
+        $stmt = $conexion->prepare($sql);
+        $stmt->setFetchMode(PDO::FETCH_ASSOC); 
+        $stmt->execute();
+        // Sólo necesitamos una fila, usamos fetch() no fetchAll()
+        $fila = $stmt->fetch();
+        // Creamos usuario indicando al constructor que inicialice con cadena vacía cada atributo
+        $usuario = new Usuario('', '', '', '', '');
+        $usuario->setId($fila['id']);
+        $usuario->setUsername($fila['username']);
+        $usuario->setNombre($fila['nombre']);
+        $usuario->setApellidos($fila['apellidos']);
+        $usuario->setContrasena($fila['contrasena']);
+        $usuario->setRol($fila['rol']);
+        
+        return [true, $usuario];
+    
+    } catch(Exception $e) {
         return [false, "Error buscando el usuario en la base de datos: " . $e->getMessage()];
     } finally {
         $conexion = null;
@@ -150,7 +225,7 @@ function borrarUsuario($id){
 
         return [true, "Usuario eliminado correctamente."];
     
-    } catch(PDOException $e) {
+    } catch(Exception $e) {
         return [false, "Error borrando el usuario en la base de datos: " . $e->getMessage()];
     } finally {
         $conexion = null;
@@ -173,11 +248,22 @@ function buscarTareasUsuario($id, $estado){
         $stmt = $conexion->prepare($sql);
         $stmt->setFetchMode(PDO::FETCH_ASSOC); 
         $stmt->execute();
-        // Como puede haber más de una fila, usamos fetchAll() para recoger todas
-        $resultado = $stmt->fetchAll();
+        
+        $resultado = [];
+        // Mientras haya resultados al hacer el fetch
+        while($fila = $stmt->fetch()){
+            $tarea = new Tarea('', '', '', 0);
+            $tarea->setId($fila['id']);
+            $tarea->setTitulo($fila['titulo']);
+            $tarea->setDescripcion($fila['descripcion']);
+            $tarea->setEstado($fila['estado']);
+            $tarea->setIdUsuario($fila['id_usuario']);
+
+            $resultado[] = $tarea;
+        };
         return [true, $resultado];
     
-    } catch(PDOException $e) {
+    } catch(Exception $e) {
         return [false, "Error buscando las tareas del usuario en la base de datos: " . $e->getMessage()];
     } finally {
         $conexion = null;
@@ -196,34 +282,57 @@ function buscarTareasUsuarioNoAdmin($username){
         $stmt = $conexion->prepare($sql);
         $stmt->setFetchMode(PDO::FETCH_ASSOC); 
         $stmt->execute();
-        // Como puede haber más de una fila, usamos fetchAll() para recoger todas
-        $resultado = $stmt->fetchAll();
+
+        $resultado = [];
+        // Mientras haya resultados al hacer el fetch
+        while($fila = $stmt->fetch()){
+            $tarea = new Tarea('', '', '', 0);
+            $tarea->setId($fila['id']);
+            $tarea->setTitulo($fila['titulo']);
+            $tarea->setDescripcion($fila['descripcion']);
+            $tarea->setEstado($fila['estado']);
+            $tarea->setIdUsuario($fila['id_usuario']);
+
+            $resultado[] = $tarea;
+        };
         return [true, $resultado];
     
-    } catch(PDOException $e) {
+    } catch(Exception $e) {
         return [false, "Error buscando las tareas del usuario en la base de datos: " . $e->getMessage()];
     } finally {
         $conexion = null;
     }
 }
+/*  ESTAS 4 FUNCIONES SE PASARON A LA CLASE FicherosDBImp PARA IMPLEMENTARLOS DESDE ALLÍ USANDO UNA INTERFACE
+    (Yo los había hecho antes ya aquí. En la nueva clase son prácticamente iguales)
 
-// Guarda los datos de un fichero en la BD (PDO)
-function guardarFicheroBD($nombreFichero, $target_file, $descripcion, $idTarea) {
+// Guarda los datos de un fichero en la BD introduciendo objeto Fichero por parámetro (PDO)
+function guardarFicheroBD($fichero) {
     try {
         $conexion = conectarDBPDO('tareas');
         //Consulta preparada
         $sql = "INSERT INTO ficheros (nombre, file, descripcion, id_tarea) VALUES (:nombre, :file, :descripcion, :id_tarea)";
         $stmt = $conexion->prepare($sql);
 
-        $stmt->bindParam(':nombre', $nombreFichero, PDO::PARAM_STR);
-        $stmt->bindParam(':file', $target_file, PDO::PARAM_STR);
+        $nombre = $fichero->getNombre();
+        $file = $fichero->getFile();
+        $descripcion = $fichero->getDescripcion();
+        $idTarea = $fichero->getIdTarea();
+
+
+        $stmt->bindParam(':nombre', $nombre, PDO::PARAM_STR);
+        $stmt->bindParam(':file', $file, PDO::PARAM_STR);
         $stmt->bindParam(':descripcion', $descripcion, PDO::PARAM_STR);
         $stmt->bindParam(':id_tarea', $idTarea, PDO::PARAM_INT);
                 
         $stmt->execute();
         // Devuelve la ejecución y mensaje si todo es correcto
-        return [true, "Fichero guardado correctamente."];
-    } catch(PDOException $e) {
+        return [true, "Fichero guardado correctamente en la BD."];
+
+    } catch(Exception $e) {
+        if($e instanceof DatabaseException){
+            return [false, "Error al guardar el fichero: " . $e->getMessage() . " Ha fallado el método " . $e->getMethod()];
+        }
         return [false, "Error al guardar el fichero: " . $e->getMessage()];
     } finally {
         // Cerrar la conexión
@@ -231,19 +340,36 @@ function guardarFicheroBD($nombreFichero, $target_file, $descripcion, $idTarea) 
     }
 }
 
-// Selecciona todos los ficheros que tiene una tarea
+
+// Selecciona todos los ficheros que tiene una tarea y devuelve array con objetos Fichero
 function listarFicherosTarea($idTarea){
     try {
         $conexion = conectarDBPDO('tareas');
         $sql = "SELECT * FROM ficheros WHERE id_tarea =" . $idTarea;
+
         $stmt = $conexion->prepare($sql);
         $stmt->setFetchMode(PDO::FETCH_ASSOC); 
         $stmt->execute();
-        // Como puede haber más de una fila, usamos fetchAll() para recoger todas
-        $resultado = $stmt->fetchAll();
+        
+        $resultado = [];
+        
+        while($fila = $stmt->fetch()){
+            $fichero = new Fichero('', '', '', 0);
+            $fichero->setId($fila['id']);
+            $fichero->setNombre($fila['nombre']);
+            $fichero->setFile($fila['file']);
+            $fichero->setDescripcion($fila['descripcion']);
+            $fichero->setIdTarea($fila['id_tarea']);
+
+            $resultado[] = $fichero;
+        }
+
         return [true, $resultado];
 
-    } catch (\Throwable $th) {
+    } catch (Exception $e) {
+        if($e instanceof DatabaseException){
+            return [false, "Error al guardar el fichero: " . $e->getMessage() . " Ha fallado el método " . $e->getMethod()];
+        }
         return [false, "Error listando los ficheros de la tarea: " . $e->getMessage()];
     } finally {
         // Cerrar la conexión
@@ -256,21 +382,33 @@ function buscarFicheroDB($idFichero){
     try {
         $conexion = conectarDBPDO('tareas');
         $sql = "SELECT * FROM ficheros WHERE id =" . $idFichero;
+
         $stmt = $conexion->prepare($sql);
         $stmt->setFetchMode(PDO::FETCH_ASSOC); 
         $stmt->execute();
-        // Sólo necesitamos una fila, un fichero. Usamos fetch() no fetchAll()
-        $resultado = $stmt->fetch();
-        return [true, $resultado];
 
-    } catch (\Throwable $th) {
+        // Sólo necesitamos una fila, usamos fetch() no fetchAll()
+        $fila = $stmt->fetch();
+        // Creamos usuario indicando al constructor que inicialice con cadena vacía cada atributo o cero
+        $fichero = new Fichero('', '', '', 0);
+        $fichero->setId($fila['id']);
+        $fichero->setNombre($fila['nombre']);
+        $fichero->setFile($fila['file']);
+        $fichero->setDescripcion($fila['descripcion']);
+        $fichero->setIdTarea($fila['id_tarea']);
+
+        return [true, $fichero];
+
+    } catch (Exception $e) {
+        if($e instanceof DatabaseException){
+            return [false, "Error al guardar el fichero: " . $e->getMessage() . " Ha fallado el método " . $e->getMethod()];
+        }
         return [false, "Error buscando el fichero por su id: " . $e->getMessage()];
     } finally {
         // Cerrar la conexión
         $conexion = null;
     }
 }
-
 
 // Elimina un fichero de la BD por su id
 function borrarFicheroDB($idFichero){
@@ -283,12 +421,15 @@ function borrarFicheroDB($idFichero){
 
         return [true, "Fichero eliminado correctamente."];
 
-    } catch (\Throwable $th) {
+    } catch (Exception $e) {
+        if($e instanceof DatabaseException){
+            return [false, "Error al guardar el fichero: " . $e->getMessage() . " Ha fallado el método " . $e->getMethod()];
+        }
         return [false, "Error borrando el fichero: " . $e->getMessage()];
     } finally {
         // Cerrar la conexión
         $conexion = null;
     }
 }
-
+*/
 ?>

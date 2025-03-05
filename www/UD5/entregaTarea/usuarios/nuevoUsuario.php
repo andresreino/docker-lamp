@@ -19,13 +19,27 @@
         $rol = $_POST["rol"];
         $contrasena = $_POST["contrasena"];
 
-        $resultado = guardarUsuario($nombre, $apellidos, $username, $rol, $contrasena);
-        
+        require_once('Usuario.php');
+
+        $usuario = new Usuario($username, $nombre, $apellidos, $rol, $contrasena);
+
+        $errores = $usuario->validar();
+
+        $resultado = [];
+
+        if(!empty($errores)){
+            $resultado = [false, "Ha ocurrido un error con los datos del usuario."];
+            $_SESSION["usuario"]["errors"] = $errores;
+        } else {
+            $resultado = guardarUsuario($usuario);
+        }
+
         // En esta variable guardamos la url desde la que se nos solicitó ejecutar este código
-        // Con header redirigimos a la página que nos solicitó desde el form usando http_referer        
-        $referer = $_SERVER['HTTP_REFERER'];
-        // Si índice 0 del array devuelto es true el índice 1 devuelve un mensaje, si false devuelve otro
-        header('Location: ' . $referer . '?success=' . $resultado[0] . '&message=' . $resultado[1]);
+        // La limpiamos primero usando esta función por si trae mensajes (?success= u otros)
+        $refererLimpio = limpiarReferer($_SERVER['HTTP_REFERER']);
+        
+        // Con header redirigimos a la página que nos solicitó desde el form usando http_referer
+        header('Location: ' . $refererLimpio . '?success=' . $resultado[0] . '&message=' . $resultado[1]);
         exit();
     }
 ?>

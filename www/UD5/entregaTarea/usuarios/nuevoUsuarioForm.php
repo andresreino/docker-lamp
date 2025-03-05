@@ -31,6 +31,14 @@
                     }
                     ?>
                 </div>
+                
+                <?php
+                // Si hay errores al guardar datos en el objeto, se almacenan en $_SESSION y se muestran
+                if(!empty($_SESSION["usuario"]["errors"])){
+                    mostrarMensajeSessionErrors();
+                }
+                ?>  
+                
                 <div class="container">
                     <form class="mb-5" action="nuevoUsuario.php" method="POST" name="formulario" >
                         <div class="mb-3">

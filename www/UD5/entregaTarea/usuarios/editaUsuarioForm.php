@@ -22,7 +22,8 @@
                 <div>
                     <?php
                     include_once('../utils.php');
-                    if(!empty($_GET["success"])){
+                    // OJO: si solo ponemos la de success no entra si es false, ya que devuelve "". 
+                    if(!empty($_GET["success"]) || !empty($_GET["message"])){
                         $success = $_GET["success"];
                         $message = $_GET["message"];
 
@@ -32,16 +33,25 @@
                     }
                     ?>
                 </div>
+                <?php
+                    // Si hay errores al editar datos en el objeto, se almacenan en $_SESSION y se muestran
+                    if(!empty($_SESSION["usuario"]["errors"])){
+                        mostrarMensajeSessionErrors();
+                    }
+                ?> 
+
                 <div class="container">
                     <?php
                     include_once('../modelo/pdo.php');
+                    require_once('Usuario.php');
                     if (!empty($_GET)){
                         $id = $_GET['id'];
+                        // Devuelve un objeto Usuario y obtenemos valores con sus getters
                         $usuario = buscarUsuario($id);
                         
-                        $nombre = $usuario[1]["nombre"];    
-                        $apellidos = $usuario[1]["apellidos"];    
-                        $username = $usuario[1]["username"];               
+                        $username = $usuario[1]->getUsername();    
+                        $nombre = $usuario[1]->getNombre();    
+                        $apellidos = $usuario[1]->getApellidos();       
                     }                      
                     ?>
                     <form class="mb-5" action="editaUsuario.php" method="POST" name="formulario" >

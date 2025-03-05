@@ -22,6 +22,8 @@
                 <div class="container">
                 <?php
                 include_once('utils.php');
+                include_once('usuarios/Usuario.php');
+                include_once('tareas/Tarea.php');
                 include_once('modelo/mysqli.php');
                 
                 // CrearDB() devuelve array con 2 valores: [0]=true/false [1]=Texto explicativo(BD creada, ya existe o error)
@@ -30,20 +32,21 @@
                 mostrarResultado($creacionDB);
                 
                 // Imprime el código del índice 1 de la variable, según haya sido true o false
-                echo "</div>";
+                
                 $creacionTablaUsuarios = crearTablaUsuarios();
                 
                 mostrarResultado($creacionTablaUsuarios);
                 
-                echo "</div>";
+                
                 $creacionTablaTareas = crearTablaTareas();
                 
                 mostrarResultado($creacionTablaTareas);
                 
-                echo "</div>";
+                
                 $creacionTablaFicheros = crearTablaFicheros();
                 
                 mostrarResultado($creacionTablaFicheros);
+                
 
                 ?>
                 </div>
