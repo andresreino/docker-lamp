@@ -1,0 +1,4 @@
+Hay 2 archivos index en esta carpeta:
+
+- index.php es la solución final que nos ha propuesto el profesor para el ejercicio de los anexos.
+- index1.php es mi solución. Lo he puesto así porque al hacer el merge me ha saltado un conflicto con su archivo.
