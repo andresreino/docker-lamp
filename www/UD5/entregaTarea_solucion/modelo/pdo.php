@@ -170,7 +170,7 @@ function borraUsuario($id)
         
         return [$con->commit(), ''];
     }
-    catch (PDOExcetion $e)
+    catch (PDOException $e)
     {
         return [false, $e->getMessage()];
     }
@@ -245,7 +245,7 @@ function buscaUsername($username)
             return null;
         }
     }
-    catch (PDOExcetion $e)
+    catch (PDOException $e)
     {
         return null;
     }
