@@ -2,3 +2,12 @@ Hay 2 archivos index en esta carpeta:
 
 - index.php es la solución final que nos ha propuesto el profesor para el ejercicio de los anexos.
 - index1.php es mi solución. Lo he puesto así porque al hacer el merge me ha saltado un conflicto con su archivo.
+
+OJO: Si ahora queremos probar el código que hay en index1.php tendríamos que cambiar el contenido del archivo .htaccess: 
+
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index1.php [QSA,L] 
+
+Ahora Apache ya reconoce la ruta y redirige a todo lo que hay en index1.php

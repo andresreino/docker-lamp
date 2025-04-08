@@ -1,0 +1,56 @@
+Para empezar la tarea teneoms que hacer docker compose down -v, lo que borra las BD existentes en nuestro servidor. 
+
+Ese comando:
+-Apaga los contenedores.
+-Elimina los volúmenes persistentes, lo cual borra las bases de datos que había dentro del contenedor MySQL.
+-Al volver a levantar el proyecto, carga los scripts .sql de la carpeta ./dump si el volumen persistent estaba vacío (como ahora). 
+Por eso solo tienes colegio, porque ese es el script que hay ahora en dump.
+
+Al levantar los contenedores de nuevo (docker compose up -d), sólo crea "colegio" y eso es porque crea de forma automática "colegio" ya que en docker-compose.yml
+tiene esta línea: MYSQL_DATABASE: colegio 
+El script myDB.sql no hacía referencia a crear la BD colegio, sino que se crea por defecto debido a la línea anterior. Le dice al contenedor de MySQL: 
+"Cuando inicies por primera vez y aún no haya datos (es decir, cuando no existe el volumen persistente), crea automáticamente una base de datos llamada colegio."
+
+Como esa ("colegio") es la base de datos activa por defecto (gracias a MYSQL_DATABASE: colegio), MySQL ejecuta el script .sql sobre ella (el que está en carpeta dump/), 
+aunque no se haga referencia explícita con USE colegio en ese script.
+
+Los pasos a seguir ahora para empezar la tarea con la BD agenda únicamente son:
+- Cambiar en docker-compose.yml   
+    environment:
+        MYSQL_DATABASE: agenda
+        MYSQL_USER: agenda
+        MYSQL_PASSWORD: agenda
+        MYSQL_ROOT_PASSWORD: test
+
+- Borrar script que hay en carpeta dump e introducir agenda.sql          
+- Detener los contenedores: docker compose down -v (detiene los contenedores y borra volumen persistente y las BD que haya)
+- Levantar los contenedores: docker compose up -d
+
+En el archivo .env me puedo crear otra variable de entorno para incluir ahí el nombre de la BD de esta unidad (agenda).
+
+He detenido y levantado y no entraba en localhost:8000 (phpMyAdmin). He cerrado y vuelto a abrir VSC y Firefox y ya va (creo que era Firefox).
+
+Al hacer lo anterior, se ha creado la BD agenda, pero no carga el script agenda.sql (puede ser porque no tiene permisos de lectura para otros usuarios)
+He cambiado esto con:  chmod 774 ./dump/agenda.sql (lectura para otros users).
+
+Después de hacer esto, he vuelto a detener contenedores como antes (borrando volúmenes) y levantar. Ya crea agenda con las tablas (ejecuta script de carpeta dump/).
+
+IMP: Si se cambia una variable de entorno una vez levantados los contenedores, hay que detenerlos y levantarlos de nuevo.
+IMP: Al introducir dentro de carpeta entregaTarea todo el framework Flight de nuevo hay que incorporar otra vez el archivo .htaccess con su configuración:
+
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L] 
+
+#### TOKEN ####
+El token se crea en el servicio "login", una vez se comprueban los datos email y contraseña que se recuperan de la request contra
+los datos de la BD (haciendo un select). Si los datos son correctos, se genera token y se guarda en la BD(su valor era null al registrar, ahora lo actualizamos).
+
+Este token se usará posteriormente en Thunder para que vaya en la cabecera de la petición y asegurarse que es el usuario con una autenticación correcta quien hace la petición.
+El token nunca se recupera de la BD. Cada vez que se hace un nuevo login se genera uno nuevo y se actualiza en la BD. Lo pasaremos en la respuesta en forma de json que 
+se da en el servicio login cuando todo es correcto (mensaje de OK y token en un array asociativo). El cliente lo recibe para poder usarlo en siguientes peticiones (por ej a 
+Thunder Client o al navegador).
+
+Para enviar el token en Thunder tenemos que ir a la pestaña "Headers" y crear uno allí => X-Token  y el valor del mismo.
+Posteriormente, podremos recuperarlo en cualquier servicio web con: Flight::request()->getHeader('X-Token')
